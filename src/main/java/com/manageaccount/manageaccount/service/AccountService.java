@@ -24,6 +24,7 @@ public class AccountService {
     @Autowired
     private BalanceRepository balanceRepository;
 
+
     public Account updateAccount(Long accountId, Account accountDetails) {
         Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         account.setEmail(accountDetails.getEmail());
