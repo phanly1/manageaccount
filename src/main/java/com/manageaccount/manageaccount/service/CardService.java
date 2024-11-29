@@ -15,5 +15,15 @@ import java.util.List;
 
 @Service
 public class CardService {
+    @Autowired
+    public AccountRepository accountRepository;
+    @Autowired
+    public CardRepository cardRepository;
+    @Autowired
+    public BalanceRepository balanceRepository;
 
+    public List<Card> getCardsByAccountId(Long accountId) {
+        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        return this.cardRepository.findByAccountId(accountId);
+    }
 }
