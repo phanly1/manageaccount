@@ -61,7 +61,6 @@ public class AccountController {
         }
     }
 
-
     @PostMapping
     public ResponseEntity<?> createAccount(@RequestBody Account account) {
         try {
