@@ -19,5 +19,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private CardService cardService;
+    @Autowired
+    private BalanceService balanceService;
 
+    @GetMapping({"{accountId}"})
+    public ResponseEntity<?> getAccountById(@PathVariable Long accountId) {
+        try {
+            AccountDTO accountDTO = this.accountService.getAccountDTO(accountId);
+            return ResponseEntity.status(HttpStatus.OK).body(accountDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
