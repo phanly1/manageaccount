@@ -17,5 +17,29 @@ import java.util.List;
 
 @Service
 public class AccountService {
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private CardRepository cardRepository;
+    @Autowired
+    private BalanceRepository balanceRepository;
 
+    public boolean canDeleteAccount(Long accountId) {
+        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        if (balance != null && balance.getAvailableBalance().compareTo(BigDecimal.ZERO) > 0) {
+            return false;
+        } else {
+            List<Card> cards = this.cardRepository.findByAccountId(accountId);
+            return cards.isEmpty();
+        }
+    }
+
+    public void deleteAccount(Long accountId) {
+        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account dose not exist."));
+        if (!this.canDeleteAccount(accountId)) {
+            throw new IllegalArgumentException("Don't delete account");
+        } else {
+            this.accountRepository.delete(account);
+        }
+    }
 }
