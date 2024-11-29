@@ -17,5 +17,19 @@ import java.util.List;
 
 @Service
 public class AccountService {
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private CardRepository cardRepository;
+    @Autowired
+    private BalanceRepository balanceRepository;
+
+    public Account updateAccount(Long accountId, Account accountDetails) {
+        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        account.setEmail(accountDetails.getEmail());
+        account.setPhoneNumber(accountDetails.getPhoneNumber());
+        return (Account)this.accountRepository.save(account);
+    }
+
 
 }
