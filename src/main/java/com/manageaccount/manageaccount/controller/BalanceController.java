@@ -37,4 +37,14 @@ public class BalanceController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PutMapping({"/{accountId}/subtractMoney"})
+    public ResponseEntity<?> subtractMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
+        try {
+            this.balanceService.subtractMoneyFromAccount(accountId, amount);
+            return ResponseEntity.status(HttpStatus.OK).body("Subtract successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
