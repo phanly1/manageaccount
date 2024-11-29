@@ -58,4 +58,16 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @DeleteMapping({"/{accountId}"})
+    public ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
+        try {
+            this.accountService.deleteAccount(accountId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

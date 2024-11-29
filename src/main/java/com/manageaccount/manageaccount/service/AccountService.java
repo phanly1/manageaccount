@@ -24,11 +24,12 @@ public class AccountService {
     @Autowired
     private BalanceRepository balanceRepository;
 
+
     public Account updateAccount(Long accountId, Account accountDetails) {
-        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         account.setEmail(accountDetails.getEmail());
         account.setPhoneNumber(accountDetails.getPhoneNumber());
-        return (Account)this.accountRepository.save(account);
+        return (Account) this.accountRepository.save(account);
     }
 
     public List<Account> getAllAccounts() {
@@ -46,6 +47,25 @@ public class AccountService {
             balance.setAccountId(account.getAccountId());
             this.balanceRepository.save(balance);
             return account;
+        }
+    }
+
+    public boolean canDeleteAccount(Long accountId) {
+        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        if (balance != null && balance.getAvailableBalance().compareTo(BigDecimal.ZERO) > 0) {
+            return false;
+        } else {
+            List<Card> cards = this.cardRepository.findByAccountId(accountId);
+            return cards.isEmpty();
+        }
+    }
+
+    public void deleteAccount(Long accountId) {
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account dose not exist."));
+        if (!this.canDeleteAccount(accountId)) {
+            throw new IllegalArgumentException("Don't delete account");
+        } else {
+            this.accountRepository.delete(account);
         }
     }
 }
