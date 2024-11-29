@@ -13,5 +13,13 @@ import java.math.BigDecimal;
 
 @Service
 public class BalanceService {
+    @Autowired
+    public BalanceRepository balanceRepository;
+    @Autowired
+    public AccountRepository accountRepository;
 
+    public Balance getBalance(Long accountId) {
+        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        return this.balanceRepository.findByAccountId(accountId);
+    }
 }
