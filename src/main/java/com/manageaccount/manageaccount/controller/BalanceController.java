@@ -13,5 +13,18 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/balance")
 public class BalanceController {
+    @Autowired
+    BalanceService balanceService;
+    @Autowired
+    AccountService accountService;
 
+    @PutMapping({"/{accountId}/addMoney"})
+    public ResponseEntity<?> addMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
+        try {
+            this.balanceService.addMoneyToAccount(accountId, amount);
+            return ResponseEntity.status(HttpStatus.OK).body("Add successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
