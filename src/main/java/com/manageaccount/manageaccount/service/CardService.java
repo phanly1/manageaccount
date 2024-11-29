@@ -23,7 +23,14 @@ public class CardService {
     public BalanceRepository balanceRepository;
 
     public List<Card> getCardsByAccountId(Long accountId) {
-        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         return this.cardRepository.findByAccountId(accountId);
+    }
+
+    public Card createCard(Long accountId, Card card) {
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        card.setAccountId(accountId);
+        return (Card) this.cardRepository.save(card);
+
     }
 }
