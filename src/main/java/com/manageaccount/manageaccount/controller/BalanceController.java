@@ -24,6 +24,16 @@ public class BalanceController {
             Balance balance = this.balanceService.getBalance(accountId);
             return ResponseEntity.status(HttpStatus.OK).body(balance);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PutMapping({"/{accountId}/addMoney"})
+    public ResponseEntity<?> addMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
+        try {
+            this.balanceService.addMoneyToAccount(accountId, amount);
+            return ResponseEntity.status(HttpStatus.OK).body("Add successfully");
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

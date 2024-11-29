@@ -19,7 +19,14 @@ public class BalanceService {
     public AccountRepository accountRepository;
 
     public Balance getBalance(Long accountId) {
-        Account account = (Account)this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         return this.balanceRepository.findByAccountId(accountId);
+    }
+
+    public void addMoneyToAccount(Long accountId, BigDecimal amount) {
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        balance.setAvailableBalance(balance.getAvailableBalance().add(amount));
+        this.balanceRepository.save(balance);
     }
 }
