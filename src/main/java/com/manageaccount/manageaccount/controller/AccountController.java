@@ -19,5 +19,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private CardService cardService;
+    @Autowired
+    private BalanceService balanceService;
 
+    public AccountController() {
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllAccount() {
+        try {
+            List<Account> accounts = this.accountService.getAllAccounts();
+            return ResponseEntity.status(HttpStatus.OK).body(accounts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createAccount(@RequestBody Account account) {
+        try {
+            Account account1 = this.accountService.createAccount(account);
+            return ResponseEntity.status(HttpStatus.CREATED).body(account1);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

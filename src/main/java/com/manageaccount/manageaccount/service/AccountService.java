@@ -17,5 +17,28 @@ import java.util.List;
 
 @Service
 public class AccountService {
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private CardRepository cardRepository;
+    @Autowired
+    private BalanceRepository balanceRepository;
 
+    public List<Account> getAllAccounts() {
+        return this.accountRepository.findAll();
+    }
+
+    public Account createAccount(Account account) throws EntityExistsException {
+        if (this.accountRepository.existsByEmail(account.getEmail())) {
+            throw new EntityExistsException("Email is available");
+        } else {
+            account = (Account) this.accountRepository.save(account);
+            Balance balance = new Balance();
+            balance.setAvailableBalance(BigDecimal.ZERO);
+            balance.setHoldBalance(BigDecimal.ZERO);
+            balance.setAccountId(account.getAccountId());
+            this.balanceRepository.save(balance);
+            return account;
+        }
+    }
 }
