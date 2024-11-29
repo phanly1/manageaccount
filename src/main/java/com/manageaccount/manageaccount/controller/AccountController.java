@@ -19,5 +19,62 @@ import java.util.List;
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private CardService cardService;
+    @Autowired
+    private BalanceService balanceService;
 
+    @GetMapping
+    public ResponseEntity<?> getAllAccount() {
+        try {
+            List<Account> accounts = accountService.getAllAccounts();
+            return ResponseEntity.status(HttpStatus.OK).body(accounts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createAccount(@RequestBody Account account) {
+        try {
+            Account account1 = accountService.createAccount(account);
+            return ResponseEntity.status(HttpStatus.CREATED).body(account1);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{accountId}")
+    public ResponseEntity<?> updateAccount(@RequestBody Account account, @PathVariable Long accountId) {
+        try {
+            Account accountUpdate = accountService.updateAccount(accountId, account);
+            return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
+        try {
+            accountService.deleteAccount(accountId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("{accountId}")
+    public ResponseEntity<?> getAccountById(@PathVariable Long accountId) {
+        try {
+            AccountDTO accountDTO = accountService.getAccountDTO(accountId);
+            return ResponseEntity.status(HttpStatus.OK).body(accountDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
