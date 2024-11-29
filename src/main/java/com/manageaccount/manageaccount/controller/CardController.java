@@ -13,5 +13,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/cards")
 public class CardController {
+    @Autowired
+    public CardService cardService;
 
+    @PostMapping({"/{accountId}"})
+    public ResponseEntity<?> createCard(@PathVariable Long accountId, @RequestBody Card card) {
+        try {
+            Card createCard = this.cardService.createCard(accountId, card);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createCard);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
