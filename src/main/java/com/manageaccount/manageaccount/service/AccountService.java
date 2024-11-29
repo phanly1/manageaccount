@@ -24,7 +24,6 @@ public class AccountService {
     @Autowired
     private BalanceRepository balanceRepository;
 
-
     public Account updateAccount(Long accountId, Account accountDetails) {
         Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         account.setEmail(accountDetails.getEmail());
@@ -67,5 +66,12 @@ public class AccountService {
         } else {
             this.accountRepository.delete(account);
         }
+    }
+
+    public AccountDTO getAccountDTO(Long accountId) {
+        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account dose not exist"));
+        List<Card> cards = this.cardRepository.findByAccountId(accountId);
+        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        return new AccountDTO(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cards, balance);
     }
 }

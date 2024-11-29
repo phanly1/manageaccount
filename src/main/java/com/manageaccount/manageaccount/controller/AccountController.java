@@ -26,6 +26,7 @@ public class AccountController {
     @Autowired
     private BalanceService balanceService;
 
+
     @PutMapping({"/{accountId}"})
     public ResponseEntity<?> updateAccount(@RequestBody Account account, @PathVariable Long accountId) {
         try {
@@ -45,9 +46,21 @@ public class AccountController {
             List<Account> accounts = this.accountService.getAllAccounts();
             return ResponseEntity.status(HttpStatus.OK).body(accounts);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping({"{accountId}"})
+    public ResponseEntity<?> getAccountById(@PathVariable Long accountId) {
+        try {
+            AccountDTO accountDTO = this.accountService.getAccountDTO(accountId);
+            return ResponseEntity.status(HttpStatus.OK).body(accountDTO);
+
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
 
     @PostMapping
     public ResponseEntity<?> createAccount(@RequestBody Account account) {
