@@ -26,6 +26,16 @@ public class AccountController {
     @Autowired
     private BalanceService balanceService;
 
+    @PutMapping({"/{accountId}"})
+    public ResponseEntity<?> updateAccount(@RequestBody Account account, @PathVariable Long accountId) {
+        try {
+            Account accountUpdate = this.accountService.updateAccount(accountId, account);
+            return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     public AccountController() {
     }
 
