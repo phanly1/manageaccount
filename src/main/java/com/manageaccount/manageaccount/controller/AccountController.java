@@ -9,9 +9,11 @@ import com.manageaccount.manageaccount.service.AccountService;
 import com.manageaccount.manageaccount.service.BalanceService;
 import com.manageaccount.manageaccount.service.CardService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -77,4 +79,30 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> getLoggedInAccount() {
+        try {
+            // Lấy đối tượng Authentication từ SecurityContext
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Kiểm tra xem Authentication có tồn tại và principal có phải là một giá trị hợp lệ
+            if (authentication == null || !(authentication.getPrincipal() instanceof Long)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid authentication principal");
+            }
+
+            Long accountId = (Long) authentication.getPrincipal();
+            AccountDTO accountDTO = accountService.getAccountDTO(accountId);
+            if (accountDTO == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(accountDTO);
+
+        } catch (ClassCastException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Unable to cast principal to Long");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error: " + e.getMessage());
+        }
+    }
 }
+
