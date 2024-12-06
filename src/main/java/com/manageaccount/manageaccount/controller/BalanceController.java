@@ -31,7 +31,7 @@ public class BalanceController {
     @PutMapping({"/{accountId}/addMoney"})
     public ResponseEntity<?> addMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
         try {
-            this.balanceService.addMoneyToAccount(accountId, amount);
+            Balance balance = balanceService.addMoneyToAccount(accountId, amount);
             return ResponseEntity.status(HttpStatus.OK).body("Add successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -41,7 +41,7 @@ public class BalanceController {
     @PutMapping({"/{accountId}/subtractMoney"})
     public ResponseEntity<?> subtractMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
         try {
-            this.balanceService.subtractMoneyFromAccount(accountId, amount);
+            Balance balance = balanceService.subtractMoneyFromAccount(accountId, amount);
             return ResponseEntity.status(HttpStatus.OK).body("Subtract successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

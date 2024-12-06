@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,6 +32,12 @@ public class CardService {
     public Card createCard(Long accountId, Card card) {
         Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         card.setAccountId(accountId);
+
+        LocalDate now = LocalDate.now();
+        LocalDate expriry = now.plusYears(2);
+        Timestamp expiryDate = Timestamp.valueOf(expriry.atStartOfDay());
+        card.setExpiryDate(expiryDate);
+
         return (Card) this.cardRepository.save(card);
     }
 
