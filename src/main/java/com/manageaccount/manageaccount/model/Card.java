@@ -2,6 +2,7 @@ package com.manageaccount.manageaccount.model;
 
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Entity
@@ -11,7 +12,7 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cardId;
     private String cardType;
-    private LocalDate expiryDate;
+    private Timestamp expiryDate;
     private String status;
 
     @JoinColumn(name = "accountId", nullable = false)
@@ -33,12 +34,12 @@ public class Card {
         this.cardType = cardType;
     }
 
-    public LocalDate getExpiryDate() {
+    public Timestamp getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDate expiryDate) {
-        this.expiryDate = expiryDate;
+    public void setExpiryDate(Timestamp expiryDate) {
+        this.expiryDate = expiryDate ;
     }
 
     public String getStatus() {

@@ -18,30 +18,30 @@ public class BalanceController {
     @Autowired
     AccountService accountService;
 
-    @GetMapping("/{accountId}")
+    @GetMapping({"/{accountId}"})
     public ResponseEntity<?> getBalance(@PathVariable Long accountId) {
         try {
-            Balance balance = balanceService.getBalance(accountId);
+            Balance balance = this.balanceService.getBalance(accountId);
             return ResponseEntity.status(HttpStatus.OK).body(balance);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{accountId}/addMoney")
+    @PutMapping({"/{accountId}/addMoney"})
     public ResponseEntity<?> addMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
         try {
-            balanceService.addMoneyToAccount(accountId, amount);
+            Balance balance = balanceService.addMoneyToAccount(accountId, amount);
             return ResponseEntity.status(HttpStatus.OK).body("Add successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{accountId}/subtractMoney")
+    @PutMapping({"/{accountId}/subtractMoney"})
     public ResponseEntity<?> subtractMoney(@PathVariable Long accountId, @RequestParam BigDecimal amount) {
         try {
-            balanceService.subtractMoneyFromAccount(accountId, amount);
+            Balance balance = balanceService.subtractMoneyFromAccount(accountId, amount);
             return ResponseEntity.status(HttpStatus.OK).body("Subtract successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

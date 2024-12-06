@@ -23,7 +23,7 @@ public class AccountDTO {
     }
 
     public Long getAccountId() {
-        return accountId;
+        return this.accountId;
     }
 
     public void setAccountId(Long accountId) {
@@ -31,7 +31,7 @@ public class AccountDTO {
     }
 
     public String getCustomerName() {
-        return customerName;
+        return this.customerName;
     }
 
     public void setCustomerName(String customerName) {
@@ -39,7 +39,7 @@ public class AccountDTO {
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public void setEmail(String email) {
@@ -47,7 +47,7 @@ public class AccountDTO {
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return this.phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -55,7 +55,7 @@ public class AccountDTO {
     }
 
     public List<Card> getCards() {
-        return cards;
+        return this.cards;
     }
 
     public void setCards(List<Card> cards) {
@@ -63,10 +63,10 @@ public class AccountDTO {
     }
 
     public Balance getBalance() {
-        return balance;
+        return this.balance;
     }
 
-    public void setBalance(Balance banlance) {
-        this.balance = banlance;
+    public void setBalance(Balance balance) {
+        this.balance = balance;
     }
 }
