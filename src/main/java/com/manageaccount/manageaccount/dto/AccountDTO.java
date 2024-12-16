@@ -21,6 +21,8 @@ public class AccountDTO {
         this.cards = cards;
         this.balance = balance;
     }
+    public AccountDTO() {
+    }
 
     public Long getAccountId() {
         return this.accountId;
