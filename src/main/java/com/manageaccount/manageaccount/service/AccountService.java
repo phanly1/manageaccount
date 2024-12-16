@@ -1,25 +1,28 @@
 package com.manageaccount.manageaccount.service;
 
-import com.manageaccount.manageaccount.dto.AccountDTO;
-import com.manageaccount.manageaccount.model.Account;
-import com.manageaccount.manageaccount.model.Balance;
-import com.manageaccount.manageaccount.model.Card;
+import com.manageaccount.manageaccount.dto.CreateAccountRequest;
+import com.manageaccount.manageaccount.dto.AccountResponse;
+import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
+import com.manageaccount.manageaccount.entity.Account;
+import com.manageaccount.manageaccount.entity.Balance;
+import com.manageaccount.manageaccount.entity.Card;
 import com.manageaccount.manageaccount.repository.AccountRepository;
 import com.manageaccount.manageaccount.repository.BalanceRepository;
 import com.manageaccount.manageaccount.repository.CardRepository;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.annotations.Cache;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.math.BigInteger;
 
 @Service
 public class AccountService {
@@ -29,23 +32,30 @@ public class AccountService {
     private CardRepository cardRepository;
     @Autowired
     private BalanceRepository balanceRepository;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @Cacheable(value = "allAccounts", unless = "#result == null")
-    public List<Account> getAllAccounts() {
-        // Nếu dữ liệu có trong cache, Spring tự động trả về mà không cần truy vấn cơ sở dữ liệu
-        return accountRepository.findAll();
+
+    @Cacheable(value = "allAccounts", key = "#page + '-' + #size")
+    public Page<Account> getAccounts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Tạo đối tượng Pageable từ page và size
+        Page<Account> result = accountRepository.findAll(pageable);  // Trả về một trang của danh sách tài khoản
+        return result;
     }
 
-    public Account createAccount(Account account) throws EntityExistsException {
-        if (this.accountRepository.existsByEmail(account.getEmail())) {
+    public Account createAccount(CreateAccountRequest accountRequest) throws EntityExistsException {
+        if (this.accountRepository.existsByEmail(accountRequest.getEmail())) {
             throw new EntityExistsException("Email is available");
         } else {
-            account = (Account) this.accountRepository.save(account);
+            Account account = new Account();
+            account.setCustomerName(accountRequest.getCustomerName());
+            account.setEmail(accountRequest.getEmail());
+            account.setPhoneNumber(accountRequest.getPhoneNumber());
+            account = accountRepository.save(account);
+
             Balance balance = new Balance();
-            balance.setAvailableBalance(BigDecimal.ZERO);
-            balance.setHoldBalance(BigDecimal.ZERO);
+            balance.setAvailableBalance(BigInteger.ZERO);
+            balance.setHoldBalance(BigInteger.ZERO);
             balance.setAccountId(account.getAccountId());
             this.balanceRepository.save(balance);
             return account;
@@ -53,52 +63,49 @@ public class AccountService {
     }
 
     @CachePut(value = "account", key = "#accountId")
-    public Account updateAccount(Long accountId, Account accountDetails) {
+    public Account updateAccount(Long accountId, UpdateAccountRequest updateAccountRequest) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        account.setEmail(accountDetails.getEmail());
-        account.setPhoneNumber(accountDetails.getPhoneNumber());
+        account.setEmail(updateAccountRequest.getEmail());
+        account.setPhoneNumber(updateAccountRequest.getPhoneNumber());
         this.accountRepository.save(account);
-
-        // Cập nhật cache nếu có
-        redisTemplate.opsForValue().set("account:" + accountId, account, 10, TimeUnit.MINUTES);
+       // entityManager.merge(account);
         return account;
 
     }
 
     public boolean canDeleteAccount(Long accountId) {
         Balance balance = this.balanceRepository.findByAccountId(accountId);
-        if (balance != null && balance.getAvailableBalance().compareTo(BigDecimal.ZERO) > 0) {
+        if (balance != null && balance.getAvailableBalance().compareTo(BigInteger.ZERO) > 0) {
             return false;
         } else {
-            List<Card> cards = this.cardRepository.findByAccountId(accountId);
-            return cards.isEmpty();
+           //kiểm tra xem tài khoản có thẻ nào không bằng cách sử dụng count
+            long cardCount = this.cardRepository.countByAccountId(accountId);
+            return cardCount == 0; // Nếu không có thẻ nào, trả về true
         }
     }
 
-    @CacheEvict(value = "AccountDTO", key = "#accountId")
+    @CacheEvict(value = "AccountResponse", key = "#accountId")
     public void deleteAccount(Long accountId) {
-        Account account = this.accountRepository.findById(accountId)
-                .orElseThrow(() -> new EntityNotFoundException("Account does not exist."));
-
         if (!this.canDeleteAccount(accountId)) {
             throw new IllegalArgumentException("Don't delete account");
         }
-
-        // Xóa tài khoản khỏi cơ sở dữ liệu
-        this.accountRepository.delete(account);
+        if (!this.accountRepository.existsById(accountId)) {
+            throw new EntityNotFoundException("Account does not exist.");
+        }
+        this.accountRepository.deleteById(accountId);
     }
 
 
-    @Cacheable(value = "AccountDTO", key = "#accountId")
-    public AccountDTO getAccountDTO(Long accountId) {
+    @Cacheable(value = "AccountResponse", key = "#accountId")
+    public AccountResponse getAccountDetail(Long accountId) {
         Account account = this.accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-
-        List<Card> cards = this.cardRepository.findByAccountId(accountId);
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+        Page<Card> cards = this.cardRepository.findByAccountId(accountId,pageable);
         Balance balance = this.balanceRepository.findByAccountId(accountId);
 
-        return  new AccountDTO(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cards, balance);
+        return  new AccountResponse(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cards, balance);
     }
 
 //    public Account updateAccount(Long accountId, Account accountDetails) {

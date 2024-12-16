@@ -1,4 +1,4 @@
-package com.manageaccount.manageaccount.ActiveMQ;
+package com.manageaccount.manageaccount.config;
 
 import com.manageaccount.manageaccount.service.NotificationService;
 import org.apache.activemq.ActiveMQConnectionFactory;

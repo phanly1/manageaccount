@@ -1,29 +1,32 @@
 package com.manageaccount.manageaccount.dto;
 
-import com.manageaccount.manageaccount.model.Balance;
-import com.manageaccount.manageaccount.model.Card;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import java.util.List;
-
-public class AccountDTO {
+public class UpdateAccountRequest {
+    @NotBlank(message = "Customer name cannot be empty")
     private Long accountId;
+    @NotBlank(message = "Customer name cannot be empty")
     private String customerName;
-    private String email;
-    private String phoneNumber;
-    private List<Card> cards;
-    private Balance balance;
 
-    public AccountDTO(Long accountId, String customerName, String email, String phoneNumber, List<Card> cards, Balance balance) {
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
+    private String email;
+
+    @NotBlank(message = "Phone number cannot be empty")
+    @Size(min = 10, max = 15, message = "Phone number must be between 10 and 15 characters")
+    private String phoneNumber;
+
+    public UpdateAccountRequest(Long accountId, String customerName, String email, String phoneNumber) {
         this.accountId = accountId;
         this.customerName = customerName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.cards = cards;
-        this.balance = balance;
     }
 
     public Long getAccountId() {
-        return this.accountId;
+        return accountId;
     }
 
     public void setAccountId(Long accountId) {
@@ -31,7 +34,7 @@ public class AccountDTO {
     }
 
     public String getCustomerName() {
-        return this.customerName;
+        return customerName;
     }
 
     public void setCustomerName(String customerName) {
@@ -39,7 +42,7 @@ public class AccountDTO {
     }
 
     public String getEmail() {
-        return this.email;
+        return email;
     }
 
     public void setEmail(String email) {
@@ -47,26 +50,12 @@ public class AccountDTO {
     }
 
     public String getPhoneNumber() {
-        return this.phoneNumber;
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
-    public List<Card> getCards() {
-        return this.cards;
-    }
-
-    public void setCards(List<Card> cards) {
-        this.cards = cards;
-    }
-
-    public Balance getBalance() {
-        return this.balance;
-    }
-
-    public void setBalance(Balance balance) {
-        this.balance = balance;
+    public static class BalanceRequest {
     }
 }

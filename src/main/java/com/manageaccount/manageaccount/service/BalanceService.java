@@ -1,19 +1,15 @@
 package com.manageaccount.manageaccount.service;
 
+import com.manageaccount.manageaccount.dto.BalanceRequest;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
-import com.manageaccount.manageaccount.model.Account;
-import com.manageaccount.manageaccount.model.Balance;
+import com.manageaccount.manageaccount.entity.Account;
+import com.manageaccount.manageaccount.entity.Balance;
 import com.manageaccount.manageaccount.repository.AccountRepository;
 import com.manageaccount.manageaccount.repository.BalanceRepository;
-import com.manageaccount.manageaccount.repository.CardRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class BalanceService {
@@ -21,8 +17,6 @@ public class BalanceService {
     public BalanceRepository balanceRepository;
     @Autowired
     public AccountRepository accountRepository;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Cacheable(value = "balance", key="#accountId")
     public Balance getBalance(Long accountId) {
@@ -31,30 +25,30 @@ public class BalanceService {
         return this.balanceRepository.findByAccountId(accountId);
     }
 
-    @CachePut(value = "balance", key="#accountId")
-    public Balance addMoneyToAccount(Long accountId, BigDecimal amount) {
-        Account account = this.accountRepository.findById(accountId)
+    @CachePut(value = "balance", key="#balanceRequest.accountId")
+    public void addMoneyToAccount(BalanceRequest balanceRequest) {
+        Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
 
-        Balance balance = this.balanceRepository.findByAccountId(accountId);
-        balance.setAvailableBalance(balance.getAvailableBalance().add(amount));
+        Balance balance = this.balanceRepository.findByAccountId(balanceRequest.getAccountId());
+        balance.setAvailableBalance(balance.getAvailableBalance().add(balanceRequest.getAmountAdded()));
 
-        return this.balanceRepository.save(balance);
+        this.balanceRepository.save(balance);
     }
 
-    @CachePut(value = "balance", key="#accountId")
-    public Balance subtractMoneyFromAccount(Long accountId, BigDecimal amount) {
-        Account account = this.accountRepository.findById(accountId)
+    @CachePut(value = "balance", key="#balanceRequest.accountId")
+    public void subtractMoneyFromAccount(BalanceRequest balanceRequest) {
+        Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
 
-        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        Balance balance = this.balanceRepository.findByAccountId(balanceRequest.getAccountId());
 
-        if (balance.getAvailableBalance().compareTo(amount) < 0) {
+        if (balance.getAvailableBalance().compareTo(balanceRequest.getAmountSubtracted()) < 0) {
             throw new IllegalArgumentException("Don't subtract money");
         }
 
-        balance.setAvailableBalance(balance.getAvailableBalance().subtract(amount));
-        return this.balanceRepository.save(balance);
+        balance.setAvailableBalance(balance.getAvailableBalance().subtract(balanceRequest.getAmountSubtracted()));
+        this.balanceRepository.save(balance);
     }
 
 

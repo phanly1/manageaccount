@@ -2,9 +2,7 @@ package com.manageaccount.manageaccount.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manageaccount.manageaccount.dto.PaymentDTO;
-import com.manageaccount.manageaccount.model.Account;
 import com.manageaccount.manageaccount.repository.AccountRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;

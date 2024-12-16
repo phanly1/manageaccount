@@ -1,85 +1,58 @@
 package com.manageaccount.manageaccount.controller;
 
-import com.manageaccount.manageaccount.dto.AccountDTO;
-import com.manageaccount.manageaccount.model.Account;
-import com.manageaccount.manageaccount.repository.AccountRepository;
-import com.manageaccount.manageaccount.repository.BalanceRepository;
-import com.manageaccount.manageaccount.repository.CardRepository;
+import com.manageaccount.manageaccount.dto.CreateAccountRequest;
+import com.manageaccount.manageaccount.dto.AccountResponse;
+import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
+import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.service.AccountService;
-import com.manageaccount.manageaccount.service.BalanceService;
-import com.manageaccount.manageaccount.service.CardService;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private CardService cardService;
-    @Autowired
-    private BalanceService balanceService;
 
 
     @PutMapping({"/{accountId}"})
-    public ResponseEntity<?> updateAccount(@RequestBody Account account, @PathVariable Long accountId) {
-        try {
-            Account accountUpdate = this.accountService.updateAccount(accountId, account);
-            return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<?> update(@RequestBody UpdateAccountRequest updateAccountRequest, @PathVariable Long accountId) throws Exception {
+        Account accountUpdate = this.accountService.updateAccount(accountId, updateAccountRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
     }
 
     public AccountController() {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllAccount() {
-        try {
-            List<Account> accounts = this.accountService.getAllAccounts();
-            return ResponseEntity.status(HttpStatus.OK).body(accounts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<Object> getAccounts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) throws Exception {
+        Page<Account> accounts = this.accountService.getAccounts(page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(accounts);
     }
 
-    @GetMapping({"{accountId}"})
-    public ResponseEntity<?> getAccountById(@PathVariable Long accountId) {
-        try {
-            AccountDTO accountDTO = this.accountService.getAccountDTO(accountId);
-            return ResponseEntity.status(HttpStatus.OK).body(accountDTO);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    @GetMapping({"/{accountId}"})
+    public ResponseEntity<?> getAccount(@PathVariable @NotNull Long accountId) throws Exception {
+        AccountResponse accountResponse = this.accountService.getAccountDetail(accountId);
+        return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
     }
 
     @PostMapping
-    public ResponseEntity<?> createAccount(@RequestBody Account account) {
-        try {
-            Account account1 = this.accountService.createAccount(account);
-            return ResponseEntity.status(HttpStatus.CREATED).body(account1);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<?> create(@Valid @RequestBody CreateAccountRequest accountRequest) throws Exception {
+        Account account = this.accountService.createAccount(accountRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
     @DeleteMapping({"/{accountId}"})
-    public ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
-        try {
-            this.accountService.deleteAccount(accountId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<?> delete(@PathVariable @NotNull(message = "Account ID cannot be null")  Long accountId) throws Exception {
+        this.accountService.deleteAccount(accountId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

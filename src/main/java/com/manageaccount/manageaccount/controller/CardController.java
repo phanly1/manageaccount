@@ -1,14 +1,13 @@
 package com.manageaccount.manageaccount.controller;
 
-import com.manageaccount.manageaccount.model.Card;
+import com.manageaccount.manageaccount.dto.CardRequest;
+import com.manageaccount.manageaccount.entity.Card;
 import com.manageaccount.manageaccount.service.CardService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/cards")
@@ -16,35 +15,23 @@ public class CardController {
     @Autowired
     public CardService cardService;
 
-    @GetMapping({"/{accountId}"})
-    public ResponseEntity<?> getCardsByAccountId(@PathVariable Long accountId) {
-        try {
-            List<Card> cardList = this.cardService.getCardsByAccountId(accountId);
-            return ResponseEntity.status(HttpStatus.OK).body(cardList);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    @GetMapping
+    public ResponseEntity<Object> getCardsByAccountId(@RequestParam Long accountId,
+                                                      @RequestParam(value = "page", defaultValue = "0") int page,
+                                                      @RequestParam(value="size", defaultValue = "10") int size) throws Exception{
+            Page<Card> cards = this.cardService.getCardsByAccountId(accountId,page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(cards);
     }
 
-    @PostMapping({"/{accountId}"})
-    public ResponseEntity<?> createCard(@PathVariable Long accountId, @RequestBody Card card) {
-        try {
-            Card createCard = this.cardService.createCard(accountId, card);
+    @PostMapping
+    public ResponseEntity<?> create(@RequestParam Long accountId, @RequestBody CardRequest cardRequest)throws Exception {
+            Card createCard = this.cardService.createCard(accountId, cardRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(createCard);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     @DeleteMapping({"/{cardId}"})
-    public ResponseEntity<?> deleteCard(@PathVariable Long cardId) {
-        try {
+    public ResponseEntity<?> delete(@PathVariable Long cardId) throws Exception{
             this.cardService.deleteCardById(cardId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 }
