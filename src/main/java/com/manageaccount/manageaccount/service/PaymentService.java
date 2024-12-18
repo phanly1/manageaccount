@@ -18,6 +18,7 @@ public class PaymentService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
     public void sendPaymentMessage(PaymentDTO paymentDTO) throws Exception {
         // Gửi message vào Queue
         String paymentJson = objectMapper.writeValueAsString(paymentDTO);

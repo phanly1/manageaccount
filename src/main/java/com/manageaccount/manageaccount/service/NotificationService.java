@@ -11,8 +11,9 @@ public class NotificationService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
     // Lắng nghe message từ payment.queue
-   // @JmsListener(destination = "payment.queue")
+    // @JmsListener(destination = "payment.queue")
     public void receivePayment(String paymentJson) throws Exception {
         PaymentDTO paymentDTO = objectMapper.readValue(paymentJson, PaymentDTO.class);
         System.out.println("Payment confirmed for paymentId: " + paymentDTO.getPaymentId());

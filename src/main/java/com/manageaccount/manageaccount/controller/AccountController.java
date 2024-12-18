@@ -31,7 +31,7 @@ public class AccountController {
     public AccountController() {
     }
 
-//    @GetMapping
+    //    @GetMapping
 //    public ResponseEntity<Object> getAccounts(
 //            @RequestParam(value = "page", defaultValue = "0") int page,
 //            @RequestParam(value = "size", defaultValue = "10") int size) throws Exception {
@@ -59,7 +59,7 @@ public class AccountController {
     }
 
     @DeleteMapping({"/{accountId}"})
-    public ResponseEntity<?> delete(@PathVariable @NotNull(message = "Account ID cannot be null")  Long accountId) throws Exception {
+    public ResponseEntity<?> delete(@PathVariable @NotNull(message = "Account ID cannot be null") Long accountId) throws Exception {
         this.accountService.deleteAccount(accountId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

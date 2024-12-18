@@ -18,14 +18,14 @@ public class BalanceService {
     @Autowired
     public AccountRepository accountRepository;
 
-    @Cacheable(value = "balance", key="#accountId")
+    @Cacheable(value = "balance", key = "#accountId")
     public Balance getBalance(Long accountId) {
         Account account = this.accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         return this.balanceRepository.findByAccountId(accountId);
     }
 
-    @CachePut(value = "balance", key="#balanceRequest.accountId")
+    @CachePut(value = "balance", key = "#balanceRequest.accountId")
     public void addMoneyToAccount(BalanceRequest balanceRequest) {
         Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
@@ -36,7 +36,7 @@ public class BalanceService {
         this.balanceRepository.save(balance);
     }
 
-    @CachePut(value = "balance", key="#balanceRequest.accountId")
+    @CachePut(value = "balance", key = "#balanceRequest.accountId")
     public void subtractMoneyFromAccount(BalanceRequest balanceRequest) {
         Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));

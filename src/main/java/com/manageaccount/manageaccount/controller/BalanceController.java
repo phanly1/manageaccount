@@ -19,13 +19,13 @@ public class BalanceController {
     AccountService accountService;
 
     @GetMapping
-    public ResponseEntity<?> getBalance(@RequestParam Long accountId) throws Exception{
-            Balance balance = this.balanceService.getBalance(accountId);
-            return ResponseEntity.status(HttpStatus.OK).body(balance);
+    public ResponseEntity<?> getBalance(@RequestParam Long accountId) throws Exception {
+        Balance balance = this.balanceService.getBalance(accountId);
+        return ResponseEntity.status(HttpStatus.OK).body(balance);
     }
 
     @PutMapping
-    public ResponseEntity<?> processTransaction(@Valid @RequestBody BalanceRequest balanceRequest){
+    public ResponseEntity<?> processTransaction(@Valid @RequestBody BalanceRequest balanceRequest) {
         balanceService.addMoneyToAccount(balanceRequest);
         balanceService.subtractMoneyFromAccount(balanceRequest);
         return ResponseEntity.status(HttpStatus.OK).body("successfully");

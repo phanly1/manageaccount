@@ -18,12 +18,12 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/process")
-    public ResponseEntity<?> processPayment(@RequestBody PaymentDTO paymentDTO){
-       try {
-           paymentService.sendPaymentMessage(paymentDTO);
-           return ResponseEntity.status(HttpStatus.OK).body( "Payment request for paymentId " + paymentDTO.getPaymentId() + "has been sent to the queue");
-       }catch (Exception e){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-       }
+    public ResponseEntity<?> processPayment(@RequestBody PaymentDTO paymentDTO) {
+        try {
+            paymentService.sendPaymentMessage(paymentDTO);
+            return ResponseEntity.status(HttpStatus.OK).body("Payment request for paymentId " + paymentDTO.getPaymentId() + "has been sent to the queue");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

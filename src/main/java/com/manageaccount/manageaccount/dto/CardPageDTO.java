@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardPageDTO {
-        private List<Card> cards;
-        private long totalElements;
-        private int totalPages;
+    private List<Card> cards;
+    private long totalElements;
+    private int totalPages;
 }

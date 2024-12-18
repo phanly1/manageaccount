@@ -2,9 +2,13 @@ package com.manageaccount.manageaccount.dto;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 public class CardRequest {
     @NotBlank(message = "Car cannot be empty")
     private String cardType;
@@ -16,19 +20,4 @@ public class CardRequest {
         this.status = status;
     }
 
-    public String getCardType() {
-        return cardType;
-    }
-
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

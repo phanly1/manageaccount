@@ -2,10 +2,14 @@ package com.manageaccount.manageaccount.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@Setter
+@Getter
 public class BalanceRequest {
     private Long accountId;
     @NotNull
@@ -19,30 +23,6 @@ public class BalanceRequest {
         this.accountId = accountId;
         this.amountAdded = amountAdded;
         this.amountSubtracted = amountSubtracted;
-    }
-
-    public BigInteger getAmountAdded() {
-        return amountAdded;
-    }
-
-    public void setAmountAdded(BigInteger amountAdded) {
-        this.amountAdded = amountAdded;
-    }
-
-    public BigInteger getAmountSubtracted() {
-        return amountSubtracted;
-    }
-
-    public void setAmountSubtracted(BigInteger amountSubtracted) {
-        this.amountSubtracted = amountSubtracted;
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
     }
 
 
