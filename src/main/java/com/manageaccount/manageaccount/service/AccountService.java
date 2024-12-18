@@ -1,8 +1,6 @@
 package com.manageaccount.manageaccount.service;
 
-import com.manageaccount.manageaccount.dto.CreateAccountRequest;
-import com.manageaccount.manageaccount.dto.AccountResponse;
-import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
+import com.manageaccount.manageaccount.dto.*;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
 import com.manageaccount.manageaccount.entity.Card;
@@ -34,13 +32,20 @@ public class AccountService {
     private BalanceRepository balanceRepository;
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private CardService cardService;
 
 
-    @Cacheable(value = "allAccounts", key = "#page + '-' + #size")
-    public Page<Account> getAccounts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);  // Tạo đối tượng Pageable từ page và size
-        Page<Account> result = accountRepository.findAll(pageable);  // Trả về một trang của danh sách tài khoản
-        return result;
+    @Cacheable(value = "accounts", key = "#page + '-' + #size")
+    public AccountPageDTO getAccounts(int page, int size) {
+        Page<Account> result = accountRepository.findAll(PageRequest.of(page, size));
+
+        AccountPageDTO accountPageDTO = new AccountPageDTO();
+        accountPageDTO.setAccounts(result.getContent());
+        accountPageDTO.setTotalElements(result.getTotalElements());
+        accountPageDTO.setTotalPages(result.getTotalPages());
+
+        return accountPageDTO;
     }
 
     public Account createAccount(CreateAccountRequest accountRequest) throws EntityExistsException {
@@ -69,7 +74,7 @@ public class AccountService {
         account.setEmail(updateAccountRequest.getEmail());
         account.setPhoneNumber(updateAccountRequest.getPhoneNumber());
         this.accountRepository.save(account);
-       // entityManager.merge(account);
+        // entityManager.merge(account);
         return account;
 
     }
@@ -79,7 +84,7 @@ public class AccountService {
         if (balance != null && balance.getAvailableBalance().compareTo(BigInteger.ZERO) > 0) {
             return false;
         } else {
-           //kiểm tra xem tài khoản có thẻ nào không bằng cách sử dụng count
+            //kiểm tra xem tài khoản có thẻ nào không bằng cách sử dụng count
             long cardCount = this.cardRepository.countByAccountId(accountId);
             return cardCount == 0; // Nếu không có thẻ nào, trả về true
         }
@@ -101,12 +106,19 @@ public class AccountService {
     public AccountResponse getAccountDetail(Long accountId) {
         Account account = this.accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-        Page<Card> cards = this.cardRepository.findByAccountId(accountId,pageable);
+        // Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+        CardPageDTO cardPageDTO = cardService.getCards(accountId, 0, Integer.MAX_VALUE);
         Balance balance = this.balanceRepository.findByAccountId(accountId);
 
-        return  new AccountResponse(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cards, balance);
+        return new AccountResponse(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cardPageDTO, balance);
     }
+
+    //    @Cacheable(value = "allAccounts", key = "#page + '-' + #size")
+//    public Page<Account> getAccounts(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);  // Tạo đối tượng Pageable từ page và size
+//        Page<Account> result = accountRepository.findAll(pageable);  // Trả về một trang của danh sách tài khoản
+//        return result;
+//    }
 
 //    public Account updateAccount(Long accountId, Account accountDetails) {
 //        Account account = accountRepository.findById(accountId)

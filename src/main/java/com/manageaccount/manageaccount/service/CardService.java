@@ -1,5 +1,7 @@
 package com.manageaccount.manageaccount.service;
 
+import com.manageaccount.manageaccount.dto.AccountPageDTO;
+import com.manageaccount.manageaccount.dto.CardPageDTO;
 import com.manageaccount.manageaccount.dto.CardRequest;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
@@ -27,10 +29,16 @@ public class CardService {
     @Autowired
     public BalanceRepository balanceRepository;
 
-    public Page<Card> getCardsByAccountId(Long accountId, int page, int size) {
-        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        Pageable pageable = PageRequest.of(page, size);
-        return this.cardRepository.findByAccountId(accountId, pageable);
+
+    public CardPageDTO getCards(Long accountId, int page, int size) {
+        Page<Card> result = cardRepository.findAll(PageRequest.of(page, size));
+
+        CardPageDTO cardPageDTO = new CardPageDTO();
+        cardPageDTO.setCards(result.getContent());
+        cardPageDTO.setTotalPages(result.getTotalPages());
+        cardPageDTO.setTotalElements(result.getTotalElements());
+
+        return cardPageDTO;
     }
 
     public Card createCard(Long accountId, CardRequest cardRequest) {
@@ -58,4 +66,11 @@ public class CardService {
             this.cardRepository.delete(card);
         }
     }
+
+    //    public Page<Card> getCardsByAccountId(Long accountId, int page, int size) {
+//        Account account = (Account) this.accountRepository.findById(accountId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+//        Pageable pageable = PageRequest.of(page, size);
+//        return this.cardRepository.findByAccountId(accountId, pageable);
+//    }
 }
+

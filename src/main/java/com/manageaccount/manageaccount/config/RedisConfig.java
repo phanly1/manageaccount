@@ -9,10 +9,12 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnection;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
@@ -37,10 +39,7 @@ public class RedisConfig {
         RedisTemplate<String ,Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        //redisTemplate.setValueSerializer(RedisSerializer.json());
-       // redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));  // Serialize với Jackson
-        redisTemplate.setValueSerializer(serializer);
+        redisTemplate.setValueSerializer(RedisSerializer.json());
         return redisTemplate;
     }
 
@@ -56,6 +55,8 @@ public class RedisConfig {
                 .cacheDefaults(cacheConfig)
                 .build();
     }
+}
+
 //
 //    @Autowired
 //    private RedisTemplate<String, String> redisTemplate;
@@ -77,4 +78,4 @@ public class RedisConfig {
 //        return null;
 //    }
 
-}
+

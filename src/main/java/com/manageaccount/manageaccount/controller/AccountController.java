@@ -1,5 +1,6 @@
 package com.manageaccount.manageaccount.controller;
 
+import com.manageaccount.manageaccount.dto.AccountPageDTO;
 import com.manageaccount.manageaccount.dto.CreateAccountRequest;
 import com.manageaccount.manageaccount.dto.AccountResponse;
 import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
@@ -30,12 +31,19 @@ public class AccountController {
     public AccountController() {
     }
 
+//    @GetMapping
+//    public ResponseEntity<Object> getAccounts(
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "10") int size) throws Exception {
+//        Page<Account> accounts = this.accountService.getAccounts(page, size);
+//        return ResponseEntity.status(HttpStatus.OK).body(accounts);
+//    }
     @GetMapping
-    public ResponseEntity<Object> getAccounts(
+    public ResponseEntity<AccountPageDTO> getAccounts(
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) throws Exception {
-        Page<Account> accounts = this.accountService.getAccounts(page, size);
-        return ResponseEntity.status(HttpStatus.OK).body(accounts);
+            @RequestParam(value = "size", defaultValue = "2") int size) {
+        AccountPageDTO accountPageDTO = accountService.getAccounts(page, size);
+        return ResponseEntity.ok(accountPageDTO);
     }
 
     @GetMapping({"/{accountId}"})

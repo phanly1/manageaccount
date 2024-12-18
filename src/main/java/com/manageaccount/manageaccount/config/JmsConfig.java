@@ -19,7 +19,7 @@ public class JmsConfig {
     @Bean
     public ConnectionFactory connectionFactory() {
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-        connectionFactory.setBrokerURL("tcp://localhost:61616"); // URL của ActiveMQ broker
+        connectionFactory.setBrokerURL("tcp://192.168.1.14:61616"); // URL của ActiveMQ broker
         return connectionFactory; // Không cần ép kiểu cast, vì chúng đã cùng loại ConnectionFactory
     }
 
