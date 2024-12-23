@@ -9,5 +9,4 @@
 FROM openjdk:17-slim
 COPY manageaccount-0.0.1-SNAPSHOT.jar /usr/src/myapp/app.jar
 WORKDIR /usr/src/myapp
-EXPOSE 8080
 CMD ["java","-Dlog4j2.formatMsgNoLookups=true","-Xms256m", "-Xmx512m", "-jar", "app.jar"]

@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,7 +35,6 @@ public class AccountService {
     private EntityManager entityManager;
     @Autowired
     private CardService cardService;
-
 
     @Cacheable(value = "accounts", key = "#page + '-' + #size")
     public AccountPageDTO getAccounts(int page, int size) {
@@ -71,6 +71,7 @@ public class AccountService {
     public Account updateAccount(Long accountId, UpdateAccountRequest updateAccountRequest) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        account.setCustomerName(updateAccountRequest.getCustomerName());
         account.setEmail(updateAccountRequest.getEmail());
         account.setPhoneNumber(updateAccountRequest.getPhoneNumber());
         this.accountRepository.save(account);
