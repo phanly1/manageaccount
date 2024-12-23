@@ -6,6 +6,7 @@ import com.manageaccount.manageaccount.dto.AccountResponse;
 import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.service.AccountService;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,14 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    public AccountController(AccountService accountService) {
+    }
+
 
     @PutMapping({"/{accountId}"})
     public ResponseEntity<?> update(@RequestBody UpdateAccountRequest updateAccountRequest, @PathVariable Long accountId) throws Exception {
-        Account accountUpdate = this.accountService.updateAccount(accountId, updateAccountRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
+            Account accountUpdate = this.accountService.updateAccount(accountId, updateAccountRequest);
+            return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
     }
 
     public AccountController() {
@@ -43,20 +47,21 @@ public class AccountController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "2") int size) {
         AccountPageDTO accountPageDTO = accountService.getAccounts(page, size);
-        return ResponseEntity.ok(accountPageDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(accountPageDTO);
     }
 
     @GetMapping({"/{accountId}"})
-    public ResponseEntity<?> getAccount(@PathVariable @NotNull Long accountId) throws Exception {
+    public ResponseEntity<?> getAccount(@PathVariable @NotNull Long accountId) throws Exception{
         AccountResponse accountResponse = this.accountService.getAccountDetail(accountId);
         return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody CreateAccountRequest accountRequest) throws Exception {
-        Account account = this.accountService.createAccount(accountRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(account);
+    public ResponseEntity<?> create(@Valid @RequestBody CreateAccountRequest accountRequest)  throws Exception {
+            Account account = this.accountService.createAccount(accountRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
+
 
     @DeleteMapping({"/{accountId}"})
     public ResponseEntity<?> delete(@PathVariable @NotNull(message = "Account ID cannot be null") Long accountId) throws Exception {
