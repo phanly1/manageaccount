@@ -23,4 +23,7 @@ public class PaymentDTO implements Serializable {
         this.currency = currency;
         this.amount = amount;
     }
+
+    
+
 }

@@ -4,6 +4,8 @@ import com.manageaccount.manageaccount.dto.*;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
 import com.manageaccount.manageaccount.entity.Card;
+//import com.manageaccount.manageaccount.mapper.AccountMapper;
+import com.manageaccount.manageaccount.mapper.AccountMapper;
 import com.manageaccount.manageaccount.repository.AccountRepository;
 import com.manageaccount.manageaccount.repository.BalanceRepository;
 import com.manageaccount.manageaccount.repository.CardRepository;
@@ -35,6 +37,8 @@ public class AccountService {
     private EntityManager entityManager;
     @Autowired
     private CardService cardService;
+    @Autowired
+    private AccountMapper accountMapper;
 
     @Cacheable(value = "accounts", key = "#page + '-' + #size")
     public AccountPageDTO getAccounts(int page, int size) {
@@ -48,36 +52,32 @@ public class AccountService {
         return accountPageDTO;
     }
 
-    public Account createAccount(CreateAccountRequest accountRequest) throws EntityExistsException {
+    public AccountResponse createAccount(AccountRequest accountRequest) throws EntityExistsException {
         if (this.accountRepository.existsByEmail(accountRequest.getEmail())) {
-            throw new EntityExistsException("Email is available");
+            throw new EntityExistsException("Email already exists");
         } else {
-            Account account = new Account();
-            account.setCustomerName(accountRequest.getCustomerName());
-            account.setEmail(accountRequest.getEmail());
-            account.setPhoneNumber(accountRequest.getPhoneNumber());
-            account = accountRepository.save(account);
+            Account account = accountMapper.accountRequesttoAccount(accountRequest);
+            this.accountRepository.save(account);
 
             Balance balance = new Balance();
             balance.setAvailableBalance(BigInteger.ZERO);
             balance.setHoldBalance(BigInteger.ZERO);
             balance.setAccountId(account.getAccountId());
             this.balanceRepository.save(balance);
-            return account;
+
+            return accountMapper.accounttoAccountResponse(account);
         }
     }
 
     @CachePut(value = "account", key = "#accountId")
-    public Account updateAccount(Long accountId, UpdateAccountRequest updateAccountRequest) {
+    public AccountResponse updateAccount(Long accountId, AccountRequest accountRequest) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        account.setCustomerName(updateAccountRequest.getCustomerName());
-        account.setEmail(updateAccountRequest.getEmail());
-        account.setPhoneNumber(updateAccountRequest.getPhoneNumber());
+
+        accountMapper.updateAccountFromRequest(accountRequest,account);
         this.accountRepository.save(account);
         // entityManager.merge(account);
-        return account;
-
+        return accountMapper.accounttoAccountResponse(account);
     }
 
     public boolean canDeleteAccount(Long accountId) {

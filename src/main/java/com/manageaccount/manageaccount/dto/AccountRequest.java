@@ -2,19 +2,21 @@ package com.manageaccount.manageaccount.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateAccountRequest {
-    @NotBlank(message = "Customer name cannot be empty")
+public class AccountRequest {
+    @Null(message = "Account ID must be null when creating an account")
     private Long accountId;
+
     @NotBlank(message = "Customer name cannot be empty")
     private String customerName;
 
@@ -22,8 +24,7 @@ public class UpdateAccountRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Phone number cannot be empty")
-    @Size(min = 10, max = 15, message = "Phone number must be between 10 and 15 characters")
+    @NotBlank(message = "Phone number connnot be empty")
+    @Size(min=10 , max = 10, message = "Phone number must be beween 10 and 15 characters")
     private String phoneNumber;
-
 }

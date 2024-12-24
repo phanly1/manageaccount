@@ -37,11 +37,8 @@ public class AccountControllerTest extends GlobalSpringContext {
     @MockBean
     private AccountService accountService;
 
-    private CreateAccountRequest createAccountRequest;
-    private Account account;
-
-
-    private UpdateAccountRequest updateAccountRequest;
+    private AccountRequest accountRequest;
+    private AccountResponse accountResponse;
     private Long accountId;
     private AccountPageDTO accountPageDTO;
     private CardPageDTO cardPageDTO;
@@ -49,32 +46,27 @@ public class AccountControllerTest extends GlobalSpringContext {
 
     @BeforeEach
     public void initDate(){
-        createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setCustomerName("testname");
-        createAccountRequest.setEmail("testemail@gmail.com");
-        createAccountRequest.setPhoneNumber("0123456789");
+        accountRequest = new AccountRequest();
+        accountRequest.setCustomerName("testname");
+        accountRequest.setEmail("testemail@gmail.com");
+        accountRequest.setPhoneNumber("0123456789");
 
-        account = new Account();
-        account.setAccountId(1L);
-        account.setCustomerName("testname");
-        account.setEmail("testemail@gmail.com");
-        account.setPhoneNumber("0123456789");
+        accountResponse = new AccountResponse();
+        accountResponse.setAccountId(1L);
+        accountResponse.setCustomerName("testname");
+        accountResponse.setEmail("testemail@gmail.com");
+        accountResponse.setPhoneNumber("0123456789");
 
         accountId = 9999L;
-        updateAccountRequest = new UpdateAccountRequest();
-        updateAccountRequest.setCustomerName("testname");
-        updateAccountRequest.setEmail("testemail@gmail.com");
-        updateAccountRequest.setPhoneNumber("0123456789");
-
     }
     //create account
     @Test
     void createAccountSuccess() throws Exception {
         // Mock phương thức service
-        when(accountService.createAccount(any(CreateAccountRequest.class))).thenReturn(account);
-        mockMvc.perform(post("/accounts")
-                        .contentType("application/json")
-                        .content(new ObjectMapper().writeValueAsString(createAccountRequest)))
+            when(accountService.createAccount(any(AccountRequest.class))).thenReturn(accountResponse);
+        mockMvc.perform(post("/accounts")                                       // đoạn này mô phỏng HTTP POst
+                        .contentType("application/json")                                  // voi dl dau vao la accountrequest
+                        .content(new ObjectMapper().writeValueAsString(accountRequest)))  // vi da tao móc nên nó sẽ trả về accountresponse trên when để so sánh với json ở dưới
                 .andExpect(status().isCreated())
                 .andExpect(content().json("{\"accountId\":1,\"customerName\":\"testname\",\"email\":\"testemail@gmail.com\",\"phoneNumber\":\"0123456789\"}"))
                 .andDo(MockMvcResultHandlers.print())
@@ -84,10 +76,10 @@ public class AccountControllerTest extends GlobalSpringContext {
     @Test
     void createAccountBadRequest() throws Exception {
        // CreateAccountRequest createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setEmail("");
+        accountRequest.setEmail("");
         mockMvc.perform(post("/accounts")
                         .contentType("application/json")
-                        .content(new ObjectMapper().writeValueAsString(createAccountRequest)))
+                        .content(new ObjectMapper().writeValueAsString(accountRequest)))
                 .andExpect(status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -96,11 +88,11 @@ public class AccountControllerTest extends GlobalSpringContext {
     //update account
     @Test
     void updateAccountSuccess() throws Exception {
-        when(accountService.updateAccount(any(Long.class),any(UpdateAccountRequest.class))).thenReturn(account);
-        String expectedJson = objectMapper.writeValueAsString(account);
+        when(accountService.updateAccount(any(Long.class),any(AccountRequest.class))).thenReturn(accountResponse);
+        String expectedJson = objectMapper.writeValueAsString(accountResponse);
         mockMvc.perform(put("/accounts/{accountId}", 1L)
                 .contentType("application/json")
-                .content(new ObjectMapper().writeValueAsString(updateAccountRequest)))
+                .content(new ObjectMapper().writeValueAsString(accountRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson))
                 .andDo(MockMvcResultHandlers.print())
@@ -109,11 +101,11 @@ public class AccountControllerTest extends GlobalSpringContext {
 
     @Test
     void updateAccountNotFound() throws Exception {
-        when(accountService.updateAccount(any(Long.class),any(UpdateAccountRequest.class))).thenThrow(new EntityNotFoundException("Account not found with id: " + accountId));
+        when(accountService.updateAccount(any(Long.class),any(AccountRequest.class))).thenThrow(new EntityNotFoundException("Account not found with id: " + accountId));
 
         mockMvc.perform(put("/accounts/{accountId}", accountId)
                         .contentType("application/json")
-                        .content(new ObjectMapper().writeValueAsString(updateAccountRequest)))
+                        .content(new ObjectMapper().writeValueAsString(accountRequest)))
                 .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }

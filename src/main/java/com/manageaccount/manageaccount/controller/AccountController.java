@@ -1,9 +1,6 @@
 package com.manageaccount.manageaccount.controller;
 
-import com.manageaccount.manageaccount.dto.AccountPageDTO;
-import com.manageaccount.manageaccount.dto.CreateAccountRequest;
-import com.manageaccount.manageaccount.dto.AccountResponse;
-import com.manageaccount.manageaccount.dto.UpdateAccountRequest;
+import com.manageaccount.manageaccount.dto.*;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.service.AccountService;
 import jakarta.persistence.EntityExistsException;
@@ -27,10 +24,16 @@ public class AccountController {
 
 
     @PutMapping({"/{accountId}"})
-    public ResponseEntity<?> update(@RequestBody UpdateAccountRequest updateAccountRequest, @PathVariable Long accountId) throws Exception {
-            Account accountUpdate = this.accountService.updateAccount(accountId, updateAccountRequest);
-            return ResponseEntity.status(HttpStatus.OK).body(accountUpdate);
+    public ResponseEntity<?> update(@RequestBody AccountRequest accountRequest, @PathVariable Long accountId) throws Exception {
+            AccountResponse accountResponse = this.accountService.updateAccount(accountId, accountRequest);
+            return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
     }
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody AccountRequest accountRequest)  throws Exception {
+        AccountResponse accountResponse = this.accountService.createAccount(accountRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountResponse);
+    }
+
 
     public AccountController() {
     }
@@ -56,11 +59,6 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
     }
 
-    @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody CreateAccountRequest accountRequest)  throws Exception {
-            Account account = this.accountService.createAccount(accountRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(account);
-    }
 
 
     @DeleteMapping({"/{accountId}"})
