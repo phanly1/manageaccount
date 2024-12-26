@@ -1,13 +1,10 @@
 package com.manageaccount.manageaccount.controller;
 
 import com.manageaccount.manageaccount.dto.*;
-import com.manageaccount.manageaccount.entity.Account;
-import com.manageaccount.manageaccount.service.AccountService;
-import jakarta.persistence.EntityExistsException;
+import com.manageaccount.manageaccount.service.impl.AccountServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/accounts")
 public class AccountController {
     @Autowired
-    private AccountService accountService;
+    private AccountServiceImpl accountService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountServiceImpl accountService) {
     }
 
 
     @PutMapping({"/{accountId}"})
-    public ResponseEntity<?> update(@RequestBody AccountRequest accountRequest, @PathVariable Long accountId) throws Exception {
+    public ResponseEntity<?> update(@Valid @RequestBody AccountRequest accountRequest,  @PathVariable @NotNull(message = "Account ID cannot be null") Long accountId) throws Exception {
             AccountResponse accountResponse = this.accountService.updateAccount(accountId, accountRequest);
             return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
     }

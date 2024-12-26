@@ -3,9 +3,8 @@ package com.manageaccount.manageaccount.controller;
 import com.manageaccount.manageaccount.dto.CardPageDTO;
 import com.manageaccount.manageaccount.dto.CardRequest;
 import com.manageaccount.manageaccount.entity.Card;
-import com.manageaccount.manageaccount.service.CardService;
+import com.manageaccount.manageaccount.service.impl.CardServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/cards")
 public class CardController {
     @Autowired
-    public CardService cardService;
+    public CardServiceImpl cardService;
 
     //    @GetMapping
 //    public ResponseEntity<Object> getCardsByAccountId(@RequestParam Long accountId,

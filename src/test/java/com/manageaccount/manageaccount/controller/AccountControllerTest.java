@@ -2,27 +2,19 @@ package com.manageaccount.manageaccount.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manageaccount.manageaccount.dto.*;
-import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
 import com.manageaccount.manageaccount.entity.Card;
-import com.manageaccount.manageaccount.service.AccountService;
+import com.manageaccount.manageaccount.service.impl.AccountServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -35,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AccountControllerTest extends GlobalSpringContext {
 
     @MockBean
-    private AccountService accountService;
+    private AccountServiceImpl accountService;
 
     private AccountRequest accountRequest;
     private AccountResponse accountResponse;

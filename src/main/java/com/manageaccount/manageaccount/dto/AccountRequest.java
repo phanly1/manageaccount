@@ -14,7 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountRequest {
-    @Null(message = "Account ID must be null when creating an account")
     private Long accountId;
 
     @NotBlank(message = "Customer name cannot be empty")

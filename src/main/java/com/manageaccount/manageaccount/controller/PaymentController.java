@@ -1,7 +1,7 @@
 package com.manageaccount.manageaccount.controller;
 
 import com.manageaccount.manageaccount.dto.PaymentDTO;
-import com.manageaccount.manageaccount.service.PaymentService;
+import com.manageaccount.manageaccount.service.impl.PaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ public class PaymentController {
     private JmsTemplate jmsTemplate;
 
     @Autowired
-    private PaymentService paymentService;
+    private PaymentServiceImpl paymentService;
 
     @PostMapping("/process")
     public ResponseEntity<?> processPayment(@RequestBody PaymentDTO paymentDTO) {

@@ -3,7 +3,7 @@ package com.manageaccount.manageaccount.controller;
 import com.manageaccount.manageaccount.dto.CardPageDTO;
 import com.manageaccount.manageaccount.dto.CardRequest;
 import com.manageaccount.manageaccount.entity.Card;
-import com.manageaccount.manageaccount.service.CardService;
+import com.manageaccount.manageaccount.service.impl.CardServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,9 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -24,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class CardControllerTest extends GlobalSpringContext{
     @MockBean
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     //get cards
     @Test

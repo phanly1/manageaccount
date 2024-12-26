@@ -2,8 +2,9 @@ package com.manageaccount.manageaccount.controller;
 
 import com.manageaccount.manageaccount.dto.BalanceRequest;
 import com.manageaccount.manageaccount.entity.Balance;
-import com.manageaccount.manageaccount.service.AccountService;
 import com.manageaccount.manageaccount.service.BalanceService;
+import com.manageaccount.manageaccount.service.impl.PaymentServiceImpl;
+import com.manageaccount.manageaccount.service.impl.AccountServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ public class BalanceController {
     @Autowired
     BalanceService balanceService;
     @Autowired
-    AccountService accountService;
+    AccountServiceImpl accountService;
 
     @GetMapping
     public ResponseEntity<?> getBalance(@RequestParam Long accountId) throws Exception {

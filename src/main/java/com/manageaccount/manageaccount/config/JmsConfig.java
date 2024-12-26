@@ -1,6 +1,6 @@
 package com.manageaccount.manageaccount.config;
 
-import com.manageaccount.manageaccount.service.NotificationService;
+import com.manageaccount.manageaccount.service.impl.NotificationServiceImpl;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +34,7 @@ public class JmsConfig {
 
     // Cấu hình listener container để lắng nghe message từ Queue
     @Bean
-    public MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory, NotificationService notificationService) {
+    public MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory, NotificationServiceImpl notificationService) {
         DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.setDestinationName("payment.queue"); // Tên của Queue mà NotificationService sẽ lắng nghe
