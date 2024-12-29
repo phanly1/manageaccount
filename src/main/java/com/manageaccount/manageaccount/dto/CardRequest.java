@@ -1,5 +1,6 @@
 package com.manageaccount.manageaccount.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,8 @@ import java.sql.Timestamp;
 @Setter
 @Getter
 @NoArgsConstructor
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CardRequest {
     @NotBlank(message = "Car cannot be empty")
     private String cardType;

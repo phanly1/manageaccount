@@ -5,9 +5,10 @@ import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
 //import com.manageaccount.manageaccount.mapper.AccountMapper;
 import com.manageaccount.manageaccount.mapper.AccountMapper;
-import com.manageaccount.manageaccount.repository.AccountRepository;
-import com.manageaccount.manageaccount.repository.BalanceRepository;
-import com.manageaccount.manageaccount.repository.CardRepository;
+import com.manageaccount.manageaccount.repository.jdbc.AccountJDBCRepository;
+import com.manageaccount.manageaccount.repository.jpa.AccountJPARepository;
+import com.manageaccount.manageaccount.repository.jpa.BalanceJPARepository;
+import com.manageaccount.manageaccount.repository.jpa.CardJPARepository;
 import com.manageaccount.manageaccount.service.AccountService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
@@ -27,21 +28,23 @@ import java.math.BigInteger;
 @Service
 public class AccountServiceImpl implements AccountService {
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountJPARepository accountJPARepository;
     @Autowired
-    private CardRepository cardRepository;
+    private CardJPARepository cardJPARepository;
     @Autowired
-    private BalanceRepository balanceRepository;
+    private BalanceJPARepository balanceJPARepository;
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
     private CardServiceImpl cardService;
     @Autowired
     private AccountMapper accountMapper;
+    @Autowired
+    private AccountJDBCRepository accountJDBCRepository;
 
     @Cacheable(value = "accounts", key = "#page + '-' + #size")
     public AccountPageDTO getAccounts(int page, int size) {
-        Page<Account> result = accountRepository.findAll(PageRequest.of(page, size));
+        Page<Account> result = accountJPARepository.findAll(PageRequest.of(page, size));
 
         AccountPageDTO accountPageDTO = new AccountPageDTO();
         accountPageDTO.setAccounts(result.getContent());
@@ -53,17 +56,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional(rollbackFor = EntityNotFoundException.class) //khi cos
     public AccountResponse createAccount(AccountRequest accountRequest) throws EntityExistsException {
-        if (this.accountRepository.existsByEmail(accountRequest.getEmail())) {
+        if (this.accountJPARepository.existsByEmail(accountRequest.getEmail())) {
             throw new EntityExistsException("Email already exists");
         } else {
             Account account = accountMapper.accountRequesttoAccount(accountRequest);
-            this.accountRepository.save(account);
+            //this.accountJPARepository.save(account);
+            account.setAccountId(accountJDBCRepository.saveAccount(account));
 
             Balance balance = new Balance();
             balance.setAvailableBalance(BigInteger.ZERO);
             balance.setHoldBalance(BigInteger.ZERO);
             balance.setAccountId(account.getAccountId());
-            this.balanceRepository.save(balance);
+            this.balanceJPARepository.save(balance);
 
             return accountMapper.accounttoAccountResponse(account);
         }
@@ -72,22 +76,22 @@ public class AccountServiceImpl implements AccountService {
     @CachePut(value = "account", key = "#accountId")
     @Transactional
     public AccountResponse updateAccount(Long accountId, AccountRequest accountRequest) {
-        Account account = accountRepository.findById(accountId)
+        Account account = accountJPARepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
 
         accountMapper.updateAccountFromRequest(accountRequest, account);
-        this.accountRepository.save(account);
+        //this.accountJPARepository.save(account);
         // entityManager.merge(account);
-        return accountMapper.accounttoAccountResponse(account);
+        return accountMapper.accounttoAccountResponse(accountJDBCRepository.updateAccount(account));
     }
 
     public boolean canDeleteAccount(Long accountId) {
-        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        Balance balance = this.balanceJPARepository.findByAccountId(accountId);
         if (balance != null && balance.getAvailableBalance().compareTo(BigInteger.ZERO) > 0) {
             return false;
         } else {
             //kiểm tra xem tài khoản có thẻ nào không bằng cách sử dụng count
-            long cardCount = this.cardRepository.countByAccountId(accountId);
+            long cardCount = this.cardJPARepository.countByAccountId(accountId);
             return cardCount == 0; // Nếu không có thẻ nào, trả về true
         }
     }
@@ -98,20 +102,24 @@ public class AccountServiceImpl implements AccountService {
         if (!this.canDeleteAccount(accountId)) {
             throw new IllegalArgumentException("Don't delete account");
         }
-        if (!this.accountRepository.existsById(accountId)) {
+        if (!this.accountJPARepository.existsById(accountId)) {
             throw new EntityNotFoundException("Account does not exist.");
         }
-        this.accountRepository.deleteById(accountId);
+//        this.accountJPARepository.deleteById(accountId);
+//        this.balanceJPARepository.deleteByAccountId(accountId);
+
+        accountJDBCRepository.deleteAccount(accountId);
+        balanceJPARepository.deleteByAccountId(accountId);
     }
 
 
     @Cacheable(value = "AccountResponse", key = "#accountId")
     public AccountResponse getAccountDetail(Long accountId) {
-        Account account = this.accountRepository.findById(accountId)
+        Account account = this.accountJPARepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
         // Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
         CardPageDTO cardPageDTO = cardService.getCards(accountId, 0, Integer.MAX_VALUE);
-        Balance balance = this.balanceRepository.findByAccountId(accountId);
+        Balance balance = this.balanceJPARepository.findByAccountId(accountId);
 
         return new AccountResponse(account.getAccountId(), account.getCustomerName(), account.getEmail(), account.getPhoneNumber(), cardPageDTO, balance);
     }

@@ -5,9 +5,10 @@ import com.manageaccount.manageaccount.dto.CardRequest;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
 import com.manageaccount.manageaccount.entity.Card;
-import com.manageaccount.manageaccount.repository.AccountRepository;
-import com.manageaccount.manageaccount.repository.BalanceRepository;
-import com.manageaccount.manageaccount.repository.CardRepository;
+import com.manageaccount.manageaccount.repository.jdbc.CardJDBCRepository;
+import com.manageaccount.manageaccount.repository.jpa.AccountJPARepository;
+import com.manageaccount.manageaccount.repository.jpa.BalanceJPARepository;
+import com.manageaccount.manageaccount.repository.jpa.CardJPARepository;
 import com.manageaccount.manageaccount.service.CardService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,16 @@ import java.time.LocalDateTime;
 @Service
 public class CardServiceImpl implements CardService {
     @Autowired
-    public AccountRepository accountRepository;
+    public AccountJPARepository accountRepository;
     @Autowired
-    public CardRepository cardRepository;
+    public CardJPARepository cardJPARepository;
     @Autowired
-    public BalanceRepository balanceRepository;
+    public BalanceJPARepository balanceJPARepository;
+    @Autowired
+    private CardJDBCRepository cardJDBCRepository;
 
     public CardPageDTO getCards(Long accountId, int page, int size) {
-        Page<Card> result = cardRepository.findAll(PageRequest.of(page, size));
+        Page<Card> result = cardJPARepository.findAll(PageRequest.of(page, size));
 
         CardPageDTO cardPageDTO = new CardPageDTO();
         cardPageDTO.setCards(result.getContent());
@@ -54,17 +57,20 @@ public class CardServiceImpl implements CardService {
 
         card.setExpiryDate(expiryTimestamp);
         card.setStatus(cardRequest.getStatus());
-        return (Card) this.cardRepository.save(card);
+
+        card.setCardId(cardJDBCRepository.saveCard(card));
+        return card;
     }
 
     @Transactional
     public void deleteCardById(Long cardId) {
-        Card card = (Card) this.cardRepository.findById(cardId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        Balance balance = this.balanceRepository.findByAccountId(card.getAccountId());
+        Card card = (Card) this.cardJPARepository.findById(cardId).orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
+        Balance balance = this.balanceJPARepository.findByAccountId(card.getAccountId());
         if (balance.getHoldBalance().compareTo(BigInteger.ZERO) > 0) {
             throw new IllegalArgumentException("Do not delete Card");
         } else {
-            this.cardRepository.delete(card);
+            //this.cardJPARepository.delete(card);
+            cardJDBCRepository.deleteCard(card);
         }
     }
 

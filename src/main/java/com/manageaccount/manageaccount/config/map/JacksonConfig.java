@@ -1,4 +1,4 @@
-package com.manageaccount.manageaccount.config;
+package com.manageaccount.manageaccount.config.map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

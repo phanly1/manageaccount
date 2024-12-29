@@ -1,12 +1,13 @@
 package com.manageaccount.manageaccount.service.impl;
 
 import com.manageaccount.manageaccount.dto.BalanceRequest;
+import com.manageaccount.manageaccount.repository.jdbc.BalanceJDBCRepository;
 import com.manageaccount.manageaccount.service.BalanceService;
 import org.springframework.cache.annotation.Cacheable;
 import com.manageaccount.manageaccount.entity.Account;
 import com.manageaccount.manageaccount.entity.Balance;
-import com.manageaccount.manageaccount.repository.AccountRepository;
-import com.manageaccount.manageaccount.repository.BalanceRepository;
+import com.manageaccount.manageaccount.repository.jpa.AccountJPARepository;
+import com.manageaccount.manageaccount.repository.jpa.BalanceJPARepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
@@ -16,15 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BalanceServiceImpl implements BalanceService {
     @Autowired
-    public BalanceRepository balanceRepository;
+    public BalanceJPARepository balanceJPARepository;
     @Autowired
-    public AccountRepository accountRepository;
+    public AccountJPARepository accountRepository;
+    @Autowired
+    public BalanceJDBCRepository balanceJDBCRepository;
 
     @Cacheable(value = "balance", key = "#accountId")
     public Balance getBalance(Long accountId) {
         Account account = this.accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
-        return this.balanceRepository.findByAccountId(accountId);
+        return this.balanceJPARepository.findByAccountId(accountId);
     }
 
     @CachePut(value = "balance", key = "#balanceRequest.accountId")
@@ -33,10 +36,11 @@ public class BalanceServiceImpl implements BalanceService {
         Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
 
-        Balance balance = this.balanceRepository.findByAccountId(balanceRequest.getAccountId());
+        Balance balance = this.balanceJPARepository.findByAccountId(balanceRequest.getAccountId());
         balance.setAvailableBalance(balance.getAvailableBalance().add(balanceRequest.getAmountAdded()));
 
-        this.balanceRepository.save(balance);
+        // this.balanceJPARepository.save(balance);
+        balanceJDBCRepository.updatebalance(balance);
     }
 
     @CachePut(value = "balance", key = "#balanceRequest.accountId")
@@ -45,14 +49,15 @@ public class BalanceServiceImpl implements BalanceService {
         Account account = this.accountRepository.findById(balanceRequest.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account does not exist"));
 
-        Balance balance = this.balanceRepository.findByAccountId(balanceRequest.getAccountId());
+        Balance balance = this.balanceJPARepository.findByAccountId(balanceRequest.getAccountId());
 
         if (balance.getAvailableBalance().compareTo(balanceRequest.getAmountSubtracted()) < 0) {
             throw new IllegalArgumentException("Don't subtract money");
         }
 
         balance.setAvailableBalance(balance.getAvailableBalance().subtract(balanceRequest.getAmountSubtracted()));
-        this.balanceRepository.save(balance);
+        //this.balanceJPARepository.save(balance);
+        balanceJDBCRepository.updatebalance(balance);
     }
 
 
